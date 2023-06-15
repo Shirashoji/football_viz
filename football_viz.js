@@ -209,8 +209,6 @@ function setup() {
   radio.option("合計");
   radio.option("単体");
   radio.selected("合計");
-  // console.log(matchData[0].win.length);
-  // noLoop();
 }
 
 function draw() {
@@ -239,13 +237,10 @@ function draw() {
   const maxY = Math.max(
     ...footBallData
       .map((e) => {
-        // delete e.label;
         return Object.values(e).filter((e) => typeof e === "number");
       })
       .flat()
   );
-
-  // .filter(({ team: point }) => team === "label")
 
   push();
   translate(margin.left, margin.top);
