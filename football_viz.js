@@ -337,21 +337,6 @@ function drawChart(
   chartWidth,
   chartHeight
 ) {
-  const xScale = d3
-    .scaleLinear()
-    .domain([0, data.length - 1])
-    .nice();
-  const yScale = d3
-    .scaleLinear()
-    .domain(
-      d3.extent(
-        Object.values(data)
-          .map((e) => Object.values(e).filter((e) => typeof e === "number"))
-          .flat()
-      )
-    )
-    .nice();
-
   push();
   translate(0, chartHeight);
   drawXAxis(data, title.xAxis, minX, maxX, chartWidth);
@@ -359,7 +344,13 @@ function drawChart(
 
   push();
   translate(0, 0);
-  drawYAxis(max(1, yScale.ticks()[1]), title.yAxis, minY, maxY, chartHeight);
+  drawYAxis(
+    radio.value() === "合計" ? 5 : 1,
+    title.yAxis,
+    minY,
+    maxY,
+    chartHeight
+  );
   pop();
 
   push();
