@@ -130,7 +130,7 @@ function setup() {
       ],
     },
     {
-      team: "Hukuoka",
+      team: "Fukuoka",
       win: [
         1, 1, 1, 0, 3, 1, 0, 0, 1, 3, 3, 1, 0, 3, 0, 1, 0, 0, 1, 3, 3, 1, 0, 0,
         0, 1, 0, 0, 0, 3, 0, 3, 3, 1,
@@ -272,7 +272,7 @@ function draw() {
     0,
     slider.value()
   );
-  console.log(checkLabel);
+
   const chartWidth = width - margin.left - margin.right;
   const chartHeight = height - margin.top - margin.bottom;
   const minX = 0;
@@ -337,6 +337,10 @@ function drawChart(
   chartWidth,
   chartHeight
 ) {
+  const xScale = d3
+    .scaleLinear()
+    .domain([0, data.length - 1])
+    .nice();
   const yScale = d3
     .scaleLinear()
     .domain(
@@ -346,7 +350,6 @@ function drawChart(
           .flat()
       )
     )
-    .range([chartHeight, 0])
     .nice();
 
   push();
@@ -372,6 +375,11 @@ function drawChart(
   push();
   translate(chartWidth / 2, -15);
   drawTitle(title.chart);
+  pop();
+
+  push();
+  translate(50, 50);
+  PieChart(data, labels, 100);
   pop();
 }
 
@@ -466,7 +474,6 @@ function chVizLegend(x, y, margin, labels) {
       mouseY - margin.top < yi + 5
     ) {
       labels[i].visible = !labels[i].visible;
-      console.log(labels[i].visible);
     }
   }
 }
@@ -518,4 +525,25 @@ function drawTitle(title) {
   noStroke();
   textAlign(CENTER, CENTER);
   text(title, 0, 0);
+}
+
+function PieChart(data, labels, chartRadius) {
+  console.log(
+    ...Object.values(data[data.length - 1]).filter((e) => typeof e === "number")
+  );
+  const vals = Object.values(data[data.length - 1]).filter(
+    (e) => typeof e === "number"
+  );
+  const sum = vals.reduce((a, b) => a + b, 0);
+  const angles = vals.map((e) => (e / sum) * TWO_PI);
+  let lastAngle = 0;
+  for (let i = 0; i < angles.length; i++) {
+    const angle = angles[i];
+    push();
+    noStroke();
+    fill(labels[i].color);
+    arc(0, 0, chartRadius, chartRadius, lastAngle, lastAngle + angle);
+    lastAngle += angle;
+    pop();
+  }
 }
