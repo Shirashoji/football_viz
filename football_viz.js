@@ -3,8 +3,17 @@ let radio;
 let matchData;
 let teamLabels;
 let footBallTitle;
+let margin;
 
 function setup() {
+  //2022 節ごと勝敗
+  //https://data.j-league.or.jp/SFRT05/?search=search&yearIdLabel=2022%E5%B9%B4&yearId=2022&competitionIdLabel=%E6%98%8E%E6%B2%BB%E5%AE%89%E7%94%B0%E7%94%9F%E5%91%BD%EF%BC%AA%EF%BC%91%E3%83%AA%E3%83%BC%E3%82%B0&competitionId=521&currIdx=-1#
+
+  //2022 順位表
+  //https://www.jleague.jp/standings/2022/
+
+  //チームカラー
+  //https://ayaito.net/webtips/color_code/8611/
   createCanvas(1000, 600);
   matchData = [
     {
@@ -228,6 +237,17 @@ function setup() {
     },
   ];
 
+  for (let i = 0; i < teamLabels.length; i++) {
+    teamLabels[i].visible = true;
+  }
+
+  margin = {
+    top: 30,
+    right: 200,
+    bottom: 50,
+    left: 50,
+  };
+
   footBallTitle = {
     chart: "2022順位",
     xAxis: "節",
@@ -245,20 +265,10 @@ function setup() {
 
 function draw() {
   background(255);
-  console.log(radio.value() === "合計");
   const footBallData = convertData(matchData, radio.value() === "合計").slice(
     0,
     slider.value()
   );
-  console.log(footBallData);
-  console.log(slider.value());
-
-  const margin = {
-    top: 30,
-    right: 200,
-    bottom: 50,
-    left: 50,
-  };
 
   const chartWidth = width - margin.left - margin.right;
   const chartHeight = height - margin.top - margin.bottom;
@@ -324,6 +334,18 @@ function drawChart(
   chartWidth,
   chartHeight
 ) {
+  const yScale = d3
+    .scaleLinear()
+    .domain(
+      d3.extent(
+        Object.values(data)
+          .map((e) => Object.values(e).filter((e) => typeof e === "number"))
+          .flat()
+      )
+    )
+    .range([chartHeight, 0])
+    .nice();
+
   push();
   translate(0, chartHeight);
   drawXAxis(data, title.xAxis, minX, maxX, chartWidth);
@@ -331,7 +353,7 @@ function drawChart(
 
   push();
   translate(0, 0);
-  drawYAxis(5, title.yAxis, minY, maxY, chartHeight);
+  drawYAxis(yScale.ticks()[1], title.yAxis, minY, maxY, chartHeight);
   pop();
 
   push();
@@ -361,6 +383,7 @@ function drawContent(
   chartHeight
 ) {
   for (let i = 0; i < labels.length; i++) {
+    if (!labels[i].visible) continue;
     drawLine(
       data,
       labels[i].key,
@@ -411,6 +434,36 @@ function drawLegend(labels) {
     noStroke();
     textAlign(LEFT, CENTER);
     text(labels[i].name, 12, 0);
+    pop();
+  }
+}
+
+function mouseClicked() {
+  const chartWidth = width - margin.left - margin.right;
+  checkLegend(chartWidth + 10, 0, teamLabels, margin);
+}
+
+function checkLegend(x, y, labels, margin) {
+  for (let i = 0; i < labels.length; i++) {
+    push();
+    const yi = y + i * 20;
+    fill(labels[i].color);
+    noStroke();
+    rectMode(CENTER);
+    rect(x + 5, yi, 10, 10);
+    if (
+      x < mouseX - margin.left &&
+      mouseX - margin.left < x + 10 &&
+      yi - 5 < mouseY - margin.top &&
+      mouseY - margin.top < yi + 5
+    ) {
+      labels[i].visible = !labels[i].visible;
+      console.log(labels[i].visible);
+    }
+    fill(0);
+    noStroke();
+    textAlign(LEFT, CENTER);
+    text(labels[i].name, x + 12, yi);
     pop();
   }
 }
