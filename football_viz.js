@@ -544,8 +544,8 @@ function PieChart(data, labels, chartRadius) {
     if ((labels[i].visible && checkLabel == -1) || checkLabel == i) {
       fill(labels[i].color);
       arc(0, 0, chartRadius, chartRadius, lastAngle, lastAngle + angle);
-      lastAngle += angle;
     }
+    lastAngle += angle;
     pop();
   }
 }
