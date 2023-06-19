@@ -272,7 +272,6 @@ function draw() {
     0,
     slider.value()
   );
-  console.log(checkLabel);
   const chartWidth = width - margin.left - margin.right;
   const chartHeight = height - margin.top - margin.bottom;
   const minX = 0;
@@ -337,18 +336,6 @@ function drawChart(
   chartWidth,
   chartHeight
 ) {
-  const yScale = d3
-    .scaleLinear()
-    .domain(
-      d3.extent(
-        Object.values(data)
-          .map((e) => Object.values(e).filter((e) => typeof e === "number"))
-          .flat()
-      )
-    )
-    .range([chartHeight, 0])
-    .nice();
-
   push();
   translate(0, chartHeight);
   drawXAxis(data, title.xAxis, minX, maxX, chartWidth);
@@ -356,7 +343,13 @@ function drawChart(
 
   push();
   translate(0, 0);
-  drawYAxis(max(1, yScale.ticks()[1]), title.yAxis, minY, maxY, chartHeight);
+  drawYAxis(
+    radio.value() === "合計" ? 5 : 1,
+    title.yAxis,
+    minY,
+    maxY,
+    chartHeight
+  );
   pop();
 
   push();
@@ -466,7 +459,6 @@ function chVizLegend(x, y, margin, labels) {
       mouseY - margin.top < yi + 5
     ) {
       labels[i].visible = !labels[i].visible;
-      console.log(labels[i].visible);
     }
   }
 }
