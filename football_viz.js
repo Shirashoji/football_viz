@@ -541,9 +541,11 @@ function PieChart(data, labels, chartRadius) {
     const angle = angles[i];
     push();
     noStroke();
-    fill(labels[i].color);
-    arc(0, 0, chartRadius, chartRadius, lastAngle, lastAngle + angle);
-    lastAngle += angle;
+    if ((labels[i].visible && checkLabel == -1) || checkLabel == i) {
+      fill(labels[i].color);
+      arc(0, 0, chartRadius, chartRadius, lastAngle, lastAngle + angle);
+      lastAngle += angle;
+    }
     pop();
   }
 }
