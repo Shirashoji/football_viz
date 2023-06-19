@@ -4,6 +4,7 @@ let matchData;
 let teamLabels;
 let footBallTitle;
 let margin;
+let checkLabel;
 
 function setup() {
   //2022 節ごと勝敗
@@ -237,6 +238,12 @@ function setup() {
     },
   ];
 
+  footBallTitle = {
+    chart: "2022順位",
+    xAxis: "節",
+    yAxis: "勝ち点",
+  };
+
   for (let i = 0; i < teamLabels.length; i++) {
     teamLabels[i].visible = true;
   }
@@ -248,11 +255,7 @@ function setup() {
     left: 50,
   };
 
-  footBallTitle = {
-    chart: "2022順位",
-    xAxis: "節",
-    yAxis: "勝ち点",
-  };
+  let checkLabel = -1;
 
   slider = createSlider(2, matchData[0].win.length, 15, 1);
   slider.style("width", "400px");
@@ -269,7 +272,7 @@ function draw() {
     0,
     slider.value()
   );
-
+  console.log(checkLabel);
   const chartWidth = width - margin.left - margin.right;
   const chartHeight = height - margin.top - margin.bottom;
   const minX = 0;
@@ -353,7 +356,7 @@ function drawChart(
 
   push();
   translate(0, 0);
-  drawYAxis(yScale.ticks()[1], title.yAxis, minY, maxY, chartHeight);
+  drawYAxis(max(1, yScale.ticks()[1]), title.yAxis, minY, maxY, chartHeight);
   pop();
 
   push();
@@ -363,7 +366,7 @@ function drawChart(
 
   push();
   translate(chartWidth + 10, 0);
-  drawLegend(labels);
+  drawLegend(chartWidth + 10, 0, margin, labels);
   pop();
 
   push();
@@ -383,18 +386,19 @@ function drawContent(
   chartHeight
 ) {
   for (let i = 0; i < labels.length; i++) {
-    if (!labels[i].visible) continue;
-    drawLine(
-      data,
-      labels[i].key,
-      labels[i].color,
-      minX,
-      maxX,
-      minY,
-      maxY,
-      chartWidth,
-      chartHeight
-    );
+    if ((labels[i].visible && checkLabel == -1) || checkLabel == i) {
+      drawLine(
+        data,
+        labels[i].key,
+        labels[i].color,
+        minX,
+        maxX,
+        minY,
+        maxY,
+        chartWidth,
+        chartHeight
+      );
+    }
   }
 }
 
@@ -420,9 +424,9 @@ function drawLine(
   endShape();
 }
 
-function drawLegend(labels) {
+function drawLegend(x, y, margin, labels) {
   // 凡例の色とラベルを描画
-
+  checkLabel = -1;
   for (let i = 0; i < labels.length; i++) {
     push();
     translate(0, i * 20);
@@ -434,37 +438,36 @@ function drawLegend(labels) {
     noStroke();
     textAlign(LEFT, CENTER);
     text(labels[i].name, 12, 0);
+    const yi = y + i * 20;
+    if (
+      x < mouseX - margin.left &&
+      mouseX - margin.left < x + 10 + textWidth(labels[i].name) &&
+      yi - 5 < mouseY - margin.top &&
+      mouseY - margin.top < yi + 5
+    ) {
+      checkLabel = i;
+    }
     pop();
   }
 }
 
 function mouseClicked() {
   const chartWidth = width - margin.left - margin.right;
-  checkLegend(chartWidth + 10, 0, teamLabels, margin);
+  chVizLegend(chartWidth + 10, 0, margin, teamLabels);
 }
 
-function checkLegend(x, y, labels, margin) {
+function chVizLegend(x, y, margin, labels) {
   for (let i = 0; i < labels.length; i++) {
-    push();
     const yi = y + i * 20;
-    fill(labels[i].color);
-    noStroke();
-    rectMode(CENTER);
-    rect(x + 5, yi, 10, 10);
     if (
       x < mouseX - margin.left &&
-      mouseX - margin.left < x + 10 &&
+      mouseX - margin.left < x + 10 + textWidth(labels[i].name) &&
       yi - 5 < mouseY - margin.top &&
       mouseY - margin.top < yi + 5
     ) {
       labels[i].visible = !labels[i].visible;
       console.log(labels[i].visible);
     }
-    fill(0);
-    noStroke();
-    textAlign(LEFT, CENTER);
-    text(labels[i].name, x + 12, yi);
-    pop();
   }
 }
 
