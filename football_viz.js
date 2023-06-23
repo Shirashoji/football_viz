@@ -257,7 +257,7 @@ function setup() {
 
   let checkLabel = -1;
 
-  slider = createSlider(2, matchData[0].win.length, 15, 1);
+  slider = createSlider(2, matchData[0].win.length + 1, 15, 1);
   slider.style("width", "400px");
 
   radio = createRadio();
@@ -316,7 +316,7 @@ function convertData(input, sum = false) {
     arr.push({ label: `${i}` });
     for (let j = 0; j < teamLength; j++) {
       if (sum && i !== 0) {
-        arr[i][input[j].team] = arr[i - 1][input[j].team] + input[j].win[i];
+        arr[i][input[j].team] = arr[i - 1][input[j].team] + input[j].win[i - 1];
       } else {
         arr[i][input[j].team] = input[j].win[i];
       }
